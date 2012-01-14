@@ -3,6 +3,7 @@ require 'economic/entity'
 module Economic
   class Invoice < Entity
     has_properties :number, :net_amount, :vat_amount, :due_date, :debtor_handle, :debtor_name, :debtor_name, :debtor_address, :debtor_postal_code, :debtor_city, :debtor_country, :debtor_ean, :attention_handle, :heading
+                  ,:date, :remainder, :remainder_default_currency, :currency_handle, :gross_amount, :is_vat_included, :our_reference_handle, :term_of_payment_handle
 
     def attention
       return nil if attention_handle.blank?
@@ -32,12 +33,6 @@ module Economic
     def debtor_handle=(handle)
       @debtor = nil unless handle == @debtor_handle
       @debtor_handle = handle
-    end
-
-    def remainder
-      session.request(soap_action(:get_remainder)) do
-        soap.body = { "invoiceHandle" => handle.to_hash }
-      end
     end
 
     # Returns the PDF version of Invoice as a String.
