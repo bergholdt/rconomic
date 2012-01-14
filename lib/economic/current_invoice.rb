@@ -119,6 +119,21 @@ module Economic
       self.margin_as_percent = 0 # Why do I have to input both Margin and MarginAsPercent? Shouldn't powerful Windows machines running ASP.NET be able to compute this?
     end
 
+    # Returns the PDF version of Invoice as a String.
+    #
+    # To get it as a file you can do:
+    #
+    #   File.open("invoice.pdf", 'wb') do |file|
+    #     file << invoice.pdf
+    #   end
+    def pdf
+      response = session.request soap_action(:get_pdf) do
+        soap.body = { "currentInvoiceHandle" => handle.to_hash }
+      end
+
+      Base64.decode64(response)
+    end
+
     # Returns OrderedHash with the properties of CurrentInvoice in the correct order, camelcased and ready
     # to be sent via SOAP
     def build_soap_data
