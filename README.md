@@ -92,6 +92,7 @@ Not even remotely... For now, limited to a small subset of all the [available op
     Debtor             | X      | X    | X      | X
     DebtorContact      | X      | X    | X      | X
     Invoice            | X      | X    |        |
+    Company            |        | X    |        |
 
 
 Credits
