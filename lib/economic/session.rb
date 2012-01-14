@@ -16,16 +16,19 @@ module Economic
     end
 
     # Authenticates with e-conomic
-    def connect
-      response = client.request :economic, :connect do
-        soap.body = {
-          :agreementNumber => self.agreement_number,
-          :userName => self.user_name,
-          :password => self.password,
-          :order! => [:agreementNumber, :userName, :password]
-        }
+    def connect(session_cookie = nil)
+      unless session_cookie.present?
+        response = client.request :economic, :connect do
+          soap.body = {
+            :agreementNumber => self.agreement_number,
+            :userName => self.user_name,
+            :password => self.password,
+            :order! => [:agreementNumber, :userName, :password]
+          }
+        end
+        session_cookie = response.http.headers["Set-Cookie"]
       end
-      client.http.headers["Cookie"] = response.http.headers["Set-Cookie"]
+      client.http.headers["Cookie"] = session_cookie
     end
 
     # Provides access to the DebtorContacts
@@ -58,6 +61,10 @@ module Economic
     
     def accounts
       @accounts ||= AccountProxy.new(self)
+    end
+
+    def company
+      @company ||= CompanyProxy.new(self)
     end
 
     def request(action, &block)
