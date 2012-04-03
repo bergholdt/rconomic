@@ -31,18 +31,7 @@ module Economic
         # Fetch data for single entity
         find(handles.first)
       elsif handles.size > 1
-        entity_class_name = entity_class.name.split('::').last
-
-        # Fetch all data for all the entities
-        entity_data = session.request(entity_class.soap_action(:get_data_array)) do
-          soap.body = {'entityHandles' => {"#{entity_class_name}Handle" => handles.collect(&:to_hash)}}
-        end
-
-        # Build Entity objects and add them to the proxy
-        entity_data["#{entity_class.key}_data".intern].each do |data|
-          entity = build(data)
-          entity.persisted = true
-        end
+        get_data_array(handles)
       end
 
       self
@@ -84,6 +73,26 @@ module Economic
         }
       end
       entity_hash
+    end
+
+    def get_data_array(handles)
+      if handles.size == 1
+        # Fetch data for single entity
+        find(handles.first)
+      elsif handles.size > 1
+        entity_class_name = entity_class.name.split('::').last
+        # Fetch all data for all the entities
+        entity_data = session.request(entity_class.soap_action(:get_data_array)) do
+          soap.body = {'entityHandles' => {"#{entity_class_name}Handle" => handles.collect(&:to_hash)}}
+        end
+
+        # Build Entity objects and add them to the proxy
+        entity_data["#{entity_class.key}_data".intern].each do |data|
+          entity = build(data)
+          entity.persisted = true
+        end
+      end
+      self
     end
 
     # Adds item to proxy unless item already exists in the proxy

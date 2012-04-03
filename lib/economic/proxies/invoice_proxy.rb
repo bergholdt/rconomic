@@ -23,10 +23,9 @@ module Economic
       end
 
       handles = [ response[:invoice_handle] ].flatten.reject(&:blank?)
-
-      handles.collect do |handle|
-        find(handle[:number])
-      end
+      handles = handles.collect { |handle| Entity::Handle.new(handle) }
+      get_data_array(handles)
+      self
     end
   end
 end
