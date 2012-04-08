@@ -3,6 +3,26 @@ require 'economic/proxies/entity_proxy'
 module Economic
   class DebtorProxy < EntityProxy
 
+    # Fetches all updated after date
+    def all_updated(from)
+      response = session.request entity_class.soap_action(:get_all_updated) do
+        soap.body = {
+          'fromDate' => from.iso8601,
+          'includeCalculatedProperties' => false
+        }
+      end
+      handles = response.values.flatten.collect { |handle| Entity::Handle.new(handle) }
+
+      if handles.size == 1
+        # Fetch data for single entity
+        find(handles.first)
+      elsif handles.size > 1
+        get_data_array(handles)
+      end
+
+      self
+    end
+
     # Fetches Debtor from API
     def find(handle)
       handle = if handle.respond_to?(:to_i)
